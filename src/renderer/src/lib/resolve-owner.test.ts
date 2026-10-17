@@ -1,11 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import type { HostAuthority } from '../../../shared/host-authority'
 import type { ExecutionHostOwnerMatch } from '../../../shared/worktree-execution-host-resolution'
 import {
+  resetAmbiguousOwnerRefusalWarningsForTests,
   resolveOwner,
+  runtimeEnvironmentIdForWorkspaceOwner,
   runtimeTargetForWorkspaceOwner,
-  type WorkspaceOwnerRef
+  type RuntimeEnvironmentOwnerMatch,
+  type WorkspaceOwnerRef,
+  warnAmbiguousOwnerRefusalOnce
 } from './resolve-owner'
 import type {
   WorktreeOperationOwnerRecord,
@@ -304,5 +308,63 @@ describe('runtimeTargetForWorkspaceOwner', () => {
 
   it('has no transport when no row names the workspace', () => {
     expect(runtimeTargetForWorkspaceOwner({ settings }, { workspaceId: WORKTREE_ID })).toBeNull()
+  })
+})
+
+describe('runtimeEnvironmentIdForWorkspaceOwner', () => {
+  function expected(owner: Match): RuntimeEnvironmentOwnerMatch {
+    if (owner.kind === 'ambiguous') {
+      return owner
+    }
+    const endpoint = owner.kind === 'resolved' ? owner.owner.endpoint : null
+    return {
+      kind: 'resolved',
+      environmentId: endpoint?.kind === 'environment' ? endpoint.environmentId : null
+    }
+  }
+
+  describe.each(ROWS)('$name', (row) => {
+    it.each(ACTIVE_SERVERS)('Active Server = %s', (active) => {
+      const state = withActiveServer(row, active)
+      expect(runtimeEnvironmentIdForWorkspaceOwner(state, row.ref)).toEqual(expected(row.owner))
+    })
+  })
+
+  it("reads a folder's saved server before that server's folder catalog loads", () => {
+    const state: WorktreeOperationRouteState = {
+      restoredRuntimeHostIdByWorkspaceSessionKey: { 'folder:f1': 'runtime:env-a' }
+    }
+    expect(runtimeEnvironmentIdForWorkspaceOwner(state, { workspaceId: 'folder:f1' })).toEqual({
+      kind: 'resolved',
+      environmentId: 'env-a'
+    })
+  })
+
+  it('refuses a local twin of a paired server instead of reading it as local', () => {
+    const state: WorktreeOperationRouteState = {
+      repos: [
+        { id: 'repo-1', executionHostId: 'local' },
+        { id: 'repo-1', executionHostId: 'runtime:env-b' }
+      ],
+      worktreesByRepo: { 'repo-1': [worktree('local'), worktree('runtime:env-b', 'env-b')] }
+    }
+    expect(runtimeEnvironmentIdForWorkspaceOwner(state, { workspaceId: WORKTREE_ID })).toEqual({
+      kind: 'ambiguous'
+    })
+  })
+})
+
+describe('warnAmbiguousOwnerRefusalOnce', () => {
+  it('logs each site and workspace once', () => {
+    resetAmbiguousOwnerRefusalWarningsForTests()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    warnAmbiguousOwnerRefusalOnce('site-a', WORKTREE_ID)
+    warnAmbiguousOwnerRefusalOnce('site-a', WORKTREE_ID)
+    warnAmbiguousOwnerRefusalOnce('site-b', WORKTREE_ID)
+
+    expect(warn).toHaveBeenCalledTimes(2)
+    expect(warn.mock.calls[0]).toContain(WORKTREE_ID)
+    warn.mockRestore()
   })
 })

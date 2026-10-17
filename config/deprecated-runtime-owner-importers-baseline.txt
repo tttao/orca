@@ -29,7 +29,6 @@ src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts
 src/renderer/src/components/terminal-workspace-model.ts
 src/renderer/src/hooks/editor-external-watch-targets.ts
 src/renderer/src/hooks/ipc-events/browser-state-ipc-bridge.ts
-src/renderer/src/hooks/ipc-events/tab-lifecycle-ipc-bridge.ts
 src/renderer/src/lib/activate-ai-vault-structured-session.ts
 src/renderer/src/lib/active-agent-note-send.ts
 src/renderer/src/lib/active-agent-note-target.ts
@@ -39,7 +38,6 @@ src/renderer/src/lib/doc-preview-grants.ts
 src/renderer/src/lib/execute-open-editor-path-move.ts
 src/renderer/src/lib/execution-host-facts.ts
 src/renderer/src/lib/file-preview.ts
-src/renderer/src/lib/host-mirrored-pane-liveness.ts
 src/renderer/src/lib/launch-agent-background-session.ts
 src/renderer/src/lib/launch-agent-in-new-tab.ts
 src/renderer/src/lib/launch-ai-vault-session.ts
@@ -48,15 +46,12 @@ src/renderer/src/lib/tab-number-shortcuts.ts
 src/renderer/src/lib/terminal-tab-owner-activation.ts
 src/renderer/src/lib/terminal-worktree-route.ts
 src/renderer/src/lib/web-runtime-worktree-terminal-after-wake.ts
-src/renderer/src/lib/workspace-browser-tab-close.ts
 src/renderer/src/lib/workspace-tab-palette-activation.ts
 src/renderer/src/lib/worktree-activation-pty-inventory.ts
 src/renderer/src/lib/worktree-activation.ts
 src/renderer/src/lib/worktree-creation-agent-seeds.ts
 src/renderer/src/lib/worktree-row-open-in-owner.ts
 src/renderer/src/lib/worktree-sort-order-host-split.ts
-src/renderer/src/runtime/close-mirrored-editor-tab.ts
-src/renderer/src/runtime/web-runtime-terminal-actions.ts
 src/renderer/src/store/slices/browser/browser-page-conversion-actions.ts
 src/renderer/src/store/slices/browser/browser-tab-actions.ts
 src/renderer/src/store/slices/tabs/tabs-host-mirroring.ts

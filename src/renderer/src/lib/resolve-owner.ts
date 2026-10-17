@@ -27,7 +27,10 @@ import {
   type WorktreeOperationRouteResolution,
   type WorktreeOperationRouteState
 } from './worktree-operation-route'
-import { getNestedSshTargetIdForFolderWorkspace } from './folder-workspace-runtime-owner'
+import {
+  getExplicitRuntimeEnvironmentIdForFolderWorkspace,
+  getNestedSshTargetIdForFolderWorkspace
+} from './folder-workspace-runtime-owner'
 import { parseWorkspaceKey } from '../../../shared/workspace-scope'
 import { hostRouteForAuthority } from '@/runtime/runtime-client-target'
 import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
@@ -141,4 +144,62 @@ export function runtimeTargetForWorkspaceOwner(
 ): RuntimeClientTarget | null {
   const match = resolveOwner(state, ref)
   return match.kind === 'resolved' ? hostRouteForAuthority(match.owner).target : null
+}
+
+const reportedAmbiguousRefusals = new Set<string>()
+
+/** Logs a refusal once per site and workspace: a twin's refusals repeat on every persist or sweep. */
+export function warnAmbiguousOwnerRefusalOnce(site: string, workspaceId: string): void {
+  const key = `${site}\0${workspaceId}`
+  if (reportedAmbiguousRefusals.has(key)) {
+    return
+  }
+  reportedAmbiguousRefusals.add(key)
+  console.warn(`[${site}] refused: ambiguous owner for`, workspaceId)
+}
+
+export function resetAmbiguousOwnerRefusalWarningsForTests(): void {
+  reportedAmbiguousRefusals.clear()
+}
+
+function restoredFolderEnvironmentId(
+  state: WorktreeOperationRouteState,
+  ref: WorkspaceOwnerRef
+): string | null {
+  const scope = parseWorkspaceKey(ref.workspaceId)
+  return scope?.type === 'folder'
+    ? getExplicitRuntimeEnvironmentIdForFolderWorkspace(state, scope.folderWorkspaceId)
+    : null
+}
+
+export type RuntimeEnvironmentOwnerMatch =
+  | { kind: 'resolved'; environmentId: string | null }
+  | { kind: 'ambiguous' }
+
+/**
+ * The paired server that owns the workspace (`null` for this app or a directly dialed SSH target),
+ * or `ambiguous` so mutating callers refuse instead of reading a twin as local.
+ */
+export function runtimeEnvironmentIdForWorkspaceOwner(
+  state: WorktreeOperationRouteState,
+  ref: WorkspaceOwnerRef
+): RuntimeEnvironmentOwnerMatch {
+  const match = resolveOwner(state, ref)
+  switch (match.kind) {
+    case 'ambiguous':
+      return match
+    case 'missing':
+      // Why: no row places it on a server, which has always read as this app's — except a folder
+      // whose saved session names its server before that server's folder catalog loads.
+      return { kind: 'resolved', environmentId: restoredFolderEnvironmentId(state, ref) }
+    case 'resolved': {
+      const { endpoint } = match.owner
+      switch (endpoint.kind) {
+        case 'self':
+          return { kind: 'resolved', environmentId: null }
+        case 'environment':
+          return { kind: 'resolved', environmentId: endpoint.environmentId }
+      }
+    }
+  }
 }

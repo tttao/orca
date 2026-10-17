@@ -216,7 +216,6 @@
 1 src/renderer/src/components/tab-bar/windows-shell-menu-visibility.ts
 2 src/renderer/src/components/tab-group/useTabGroupActivationCommands.ts
 5 src/renderer/src/components/tab-group/useTabGroupCreationCommands.ts
-1 src/renderer/src/components/tab-group/workspace-tab-close-commands.ts
 1 src/renderer/src/components/task-page-jira-status-order.ts
 2 src/renderer/src/components/task-page-linear-issue-model.tsx
 9 src/renderer/src/components/task-page/TaskPage.tsx
@@ -283,7 +282,7 @@
 1 src/renderer/src/hooks/ipc-events/browser-state-ipc-bridge.ts
 1 src/renderer/src/hooks/ipc-events/runtime-environment-subscription-selection.ts
 1 src/renderer/src/hooks/ipc-events/settings-sidebar-ipc-bridge.ts
-2 src/renderer/src/hooks/ipc-events/tab-lifecycle-ipc-bridge.ts
+1 src/renderer/src/hooks/ipc-events/tab-lifecycle-ipc-bridge.ts
 1 src/renderer/src/hooks/ipc-events/terminal-request-ipc-bridge.ts
 2 src/renderer/src/hooks/use-active-skill-discovery-runtime-target.ts
 1 src/renderer/src/hooks/use-terminal-quick-command-hosts.ts
@@ -320,7 +319,6 @@
 2 src/renderer/src/lib/execution-host-facts.ts
 6 src/renderer/src/lib/file-preview.ts
 2 src/renderer/src/lib/folder-workspace-runtime-owner.ts
-1 src/renderer/src/lib/host-mirrored-pane-liveness.ts
 6 src/renderer/src/lib/http-link-destinations.ts
 3 src/renderer/src/lib/http-link-routing.ts
 1 src/renderer/src/lib/launch-agent-background-session.ts
@@ -350,10 +348,8 @@
 5 src/renderer/src/lib/terminal-worktree-route.ts
 3 src/renderer/src/lib/unread-badge-count-selector.ts
 2 src/renderer/src/lib/web-runtime-worktree-terminal-after-wake.ts
-1 src/renderer/src/lib/workspace-browser-tab-close.ts
 5 src/renderer/src/lib/workspace-browser-tab-open.ts
 1 src/renderer/src/lib/workspace-file-drag-source.ts
-1 src/renderer/src/lib/workspace-tab-commands.ts
 1 src/renderer/src/lib/workspace-tab-palette-activation.ts
 1 src/renderer/src/lib/worktree-activation-pty-inventory.ts
 3 src/renderer/src/lib/worktree-activation.ts
@@ -363,7 +359,6 @@
 1 src/renderer/src/lib/worktree-row-open-in-owner.ts
 6 src/renderer/src/lib/worktree-runtime-owner.ts # typed owner resolver plus its null-collapsing wrapper; callers net -3
 1 src/renderer/src/lib/worktree-sort-order-host-split.ts
-1 src/renderer/src/runtime/close-mirrored-editor-tab.ts
 1 src/renderer/src/runtime/local-structured-session-tabs-sync/snapshot-apply.ts
 17 src/renderer/src/runtime/runtime-jira-client.ts
 2 src/renderer/src/runtime/runtime-jira-summary-client.ts
@@ -380,7 +375,6 @@
 1 src/renderer/src/runtime/web-runtime-initial-terminal-bootstrap-dispatch.ts
 1 src/renderer/src/runtime/web-runtime-session-tab-lifecycle.ts
 1 src/renderer/src/runtime/web-runtime-session-tab-move.ts
-2 src/renderer/src/runtime/web-runtime-terminal-actions.ts
 1 src/renderer/src/runtime/web-runtime-terminal-create-operation.ts
 3 src/renderer/src/runtime/web-runtime-terminal-creation.ts
 1 src/renderer/src/runtime/web-runtime-worktree-activation.ts
