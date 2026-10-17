@@ -28,7 +28,27 @@ const WORKSPACE_ROOT = resolve(process.env.ORCA_WORKSPACE_ROOT ?? process.cwd())
 // Where the standalone frontend build lives (see vite.web.standalone.config.ts).
 const WEB_OUT = join(REPO_ROOT, process.env.ORCA_WEB_OUT ?? 'out/web-standalone')
 const PORT = Number(process.env.PORT ?? 8765)
-const HOST = process.env.HOST ?? '0.0.0.0'
+// Default to the Tailscale interface IP (e.g. 100.122.53.38) so the web IDE is
+// reachable over the tailnet at http://<tailscale-ip>:<port>/. Falls back to
+// 0.0.0.0 when no Tailscale interface is present. Override with ORCA_HOST.
+const detectedHost = detectTailscaleHost()
+const HOST = process.env.HOST ?? detectedHost
+
+function detectTailscaleHost(): string {
+  try {
+    const ifaces: Record<string, { family: string; address: string; internal: boolean }[] | undefined> =
+      require('node:os').networkInterfaces()
+    for (const [name, addrs] of Object.entries(ifaces)) {
+      if (!addrs || !name.toLowerCase().includes('tailscale')) continue
+      for (const addr of addrs) {
+        if (addr.family === 'IPv4' && !addr.internal) return addr.address
+      }
+    }
+  } catch {
+    /* noop */
+  }
+  return '0.0.0.0'
+}
 
 // ---------------------------------------------------------------------------
 // Path safety
